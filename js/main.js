@@ -36,7 +36,6 @@
     const url = new URL(window.location.href);
     return url.searchParams.get(name);
   }
-
   function debounce(fn, ms = 200) {
     let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   }
@@ -46,9 +45,7 @@
     root.innerHTML = '';
     if (AppDom?.bookCard) {
       for (const it of list) {
-        const card = AppDom.bookCard(it, {
-          onDelete: (id) => { AppStorage?.remove?.(id); applySearch(); }
-        });
+       const card = AppDom.bookCard(it);
         root.appendChild(card);
       }
     } else {
@@ -70,6 +67,24 @@
     const run = debounce(applySearch, 150);
     for (const s of inputs) $(s)?.addEventListener('input', run);
     applySearch();
+    // Delegated delete handler for catalog list
+    const results = document.getElementById('results');
+    if (results && !results.__bnvDelegatedDelete) {
+      results.addEventListener('click', (e) => {
+        const t = e.target;
+        if (!(t instanceof Element)) return;
+        const btn = t.closest('button[data-action="delete"][data-id]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
+        if (!id) return;
+        // Find a title if available
+        const card = btn.closest('.book-card');
+        const titleEl = card?.querySelector('h3, .book-title');
+        const title = titleEl?.textContent?.trim() || 'this item';
+        requestDelete(id, title, () => applySearch());
+      });
+      results.__bnvDelegatedDelete = true;
+    }
   }
 
   function fillForm(it) {
@@ -110,8 +125,7 @@
     });
   }
 
-  function initDashboard() {
-    AppStorage?.maybeSeed?.();
+  function renderDashboard() {
     const s = AppStorage?.stats?.() || { total: 0, readCnt: 0, readingCnt: 0, toReadCnt: 0, tagList: [], recent: [] };
     $('#stat-total').textContent = String(s.total);
     $('#stat-read').textContent = String(s.readCnt);
@@ -126,7 +140,34 @@
     const recentRoot = $('#recent');
     if (recentRoot) {
       recentRoot.innerHTML = '';
-      if (AppDom?.bookCard) for (const it of s.recent) recentRoot.appendChild(AppDom.bookCard(it));
+      if (AppDom?.bookCard) {
+        for (const it of s.recent) {
+          const card = AppDom.bookCard(it);
+          recentRoot.appendChild(card);
+        }
+      }
+    }
+  }
+
+  function initDashboard() {
+    AppStorage?.maybeSeed?.();
+    renderDashboard();
+    // Delegated delete handler for recent list
+    const recent = document.getElementById('recent');
+    if (recent && !recent.__bnvDelegatedDelete) {
+      recent.addEventListener('click', (e) => {
+        const t = e.target;
+        if (!(t instanceof Element)) return;
+        const btn = t.closest('button[data-action="delete"][data-id]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
+        if (!id) return;
+        const card = btn.closest('.book-card');
+        const titleEl = card?.querySelector('h3, .book-title');
+        const title = titleEl?.textContent?.trim() || 'this item';
+        requestDelete(id, title, () => renderDashboard());
+      });
+      recent.__bnvDelegatedDelete = true;
     }
   }
 
@@ -153,11 +194,67 @@
     // Theme
     applyTheme(getSavedTheme());
     mountThemeToggle();
+    ensureModal();
     const page = document.body.dataset.page;
     if (page === 'home') initHome();
     else if (page === 'form') initForm();
     else if (page === 'dashboard') initDashboard();
     else if (page === 'about') initAbout();
+  }
+
+  // CONFIRM MODAL
+  let modalEls = null;
+  function ensureModal() {
+    if (modalEls) return;
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop';
+    backdrop.innerHTML = `
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+        <h4 id="confirm-title">Confirm Delete</h4>
+        <div id="confirm-message" class="help"></div>
+        <div class="modal-actions">
+          <button id="confirm-no" class="btn">No</button>
+          <button id="confirm-yes" class="btn danger">Yes, Delete</button>
+        </div>
+      </div>`;
+    document.body.appendChild(backdrop);
+    const msg = backdrop.querySelector('#confirm-message');
+    const yes = backdrop.querySelector('#confirm-yes');
+    const no = backdrop.querySelector('#confirm-no');
+    function hide() { backdrop.classList.remove('show'); }
+    backdrop.addEventListener('click', (e) => { if (e.target === backdrop) hide(); });
+    document.addEventListener('keydown', (e) => { if (backdrop.classList.contains('show') && e.key === 'Escape') hide(); });
+    modalEls = { backdrop, msg, yes, no, hide };
+  }
+
+  function confirmDelete(message, onYes) {
+    ensureModal();
+    if (!modalEls || !modalEls.backdrop) {
+      // Fallback to native confirm if modal not available
+      if (window.confirm(message)) onYes && onYes();
+      return;
+    }
+    modalEls.msg.textContent = message;
+    modalEls.backdrop.classList.add('show');
+    // Move focus to No button for accessibility
+    setTimeout(() => modalEls.no?.focus?.(), 0);
+    const clean = () => {
+      modalEls.yes.removeEventListener('click', yesHandler);
+      modalEls.no.removeEventListener('click', noHandler);
+    };
+    function yesHandler() { onYes && onYes(); modalEls.hide(); clean(); }
+    function noHandler() { modalEls.hide(); clean(); }
+    modalEls.yes.addEventListener('click', yesHandler);
+    modalEls.no.addEventListener('click', noHandler);
+  }
+
+  // Reusable delete flow: confirm, remove from storage, then run a callback to refresh UI
+  function requestDelete(id, title, after) {
+    const name = title || 'this item';
+    confirmDelete(`Are you sure you want to delete "${name}"?`, () => {
+      AppStorage?.remove?.(id);
+      if (typeof after === 'function') after();
+    });
   }
 
   document.addEventListener('DOMContentLoaded', init);

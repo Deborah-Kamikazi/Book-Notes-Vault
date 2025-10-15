@@ -97,6 +97,14 @@ textarea { min-height: 120px; resize: vertical; }
 .stat .value { font-size: 22px; font-weight: 700; }
 .stat .label { color: var(--muted); font-size: 12px; }
 
+/* Modal (confirm) */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(10, 15, 25, 0.6); display: none; align-items: center; justify-content: center; z-index: 1000; }
+:root[data-theme="light"] .modal-backdrop { background: rgba(10, 20, 40, 0.35); }
+.modal { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px; width: min(420px, 92%); box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
+.modal h4 { margin: 0 0 10px 0; font-size: 16px; }
+.modal .modal-actions { display:flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
+.modal-backdrop.show { display: flex; }
+
 @media (max-width: 800px) {
   .search-panel .fields { grid-template-columns: 1fr; }
   .row { grid-template-columns: 1fr; }

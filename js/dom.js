@@ -21,7 +21,7 @@
     return '★'.repeat(n) + '☆'.repeat(5 - n);
   }
 
-  function bookCard(it, { onEdit, onDelete } = {}) {
+  function bookCard(it, { onEdit } = {}) {
     return h('div', { class: 'book-card' },
       h('h3', {}, it.title || 'Untitled'),
       h('div', { class: 'meta' }, [
@@ -33,7 +33,7 @@
       h('div', { class: 'tags' }, (it.tags || []).map(tagBadge)),
       h('div', { class: 'actions' }, [
         h('a', { href: './form.html?id=' + encodeURIComponent(it.id), class: 'btn primary' }, 'Edit'),
-        h('button', { class: 'btn danger', onClick: (e) => { e.preventDefault(); onDelete && onDelete(it.id); } }, 'Delete')
+        h('button', { class: 'btn danger', 'data-action': 'delete', 'data-id': String(it.id) }, 'Delete')
       ])
     );
   }
