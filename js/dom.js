@@ -32,7 +32,7 @@
       it.notes ? h('div', { class: 'help' }, it.notes.slice(0, 200)) : null,
       h('div', { class: 'tags' }, (it.tags || []).map(tagBadge)),
       h('div', { class: 'actions' }, [
-        h('a', { href: './form.html?id=' + encodeURIComponent(it.id), class: 'btn' }, 'Edit'),
+        h('a', { href: './form.html?id=' + encodeURIComponent(it.id), class: 'btn primary' }, 'Edit'),
         h('button', { class: 'btn danger', onClick: (e) => { e.preventDefault(); onDelete && onDelete(it.id); } }, 'Delete')
       ])
     );
