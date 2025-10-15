@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book & Notes Vault • About</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body data-page="about">
+    <header class="site-header">
+      <div class="container header-inner">
+        <h1 class="brand">Book & Notes Vault</h1>
+        <nav class="nav">
+          <a href="./index.html">Catalog</a>
+          <a href="./form.html">Add/Edit</a>
+          <a href="./dashboard.html">Dashboard</a>
+          <a class="active" href="./about.html">About</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card" style="margin-top:14px">
+        <h2 style="margin:0 0 8px 0">About</h2>
+        <p class="help">Your personal library and reading notes in one place.</p>
+        <ul>
+          <li>Catalog books you’ve read or want to read</li>
+          <li>Add notes and quotes</li>
+          <li>Organize with tags and status</li>
+          <li>Search quickly across your collection</li>
+        </ul>
+      </section>
+
+      <section class="card" style="margin-top:14px">
+        <h3 style="margin:0 0 8px 0">Contact</h3>
+        <form id="contact-form" class="form">
+          <div class="row">
+            <label class="field">
+              <span>Name</span>
+              <input id="c-name" required />
+            </label>
+            <label class="field">
+              <span>Email</span>
+              <input id="c-email" type="email" required />
+            </label>
+          </div>
+          <label class="field">
+            <span>Message</span>
+            <textarea id="c-msg" required></textarea>
+          </label>
+          <div class="actions">
+            <button class="btn primary" type="submit">Send</button>
+          </div>
+          <div id="c-status" class="help"></div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">© <span id="year"></span> Book & Notes Vault</div>
+    </footer>
+
+    <script src="./js/storage.js"></script>
+    <script src="./js/validation.js"></script>
+    <script src="./js/dom.js"></script>
+    <script src="./js/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book & Notes Vault • Add/Edit</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body data-page="form">
+    <header class="site-header">
+      <div class="container header-inner">
+        <h1 class="brand">Book & Notes Vault</h1>
+        <nav class="nav">
+          <a href="./index.html">Catalog</a>
+          <a class="active" href="./form.html">Add/Edit</a>
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./about.html">About</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card" style="margin-top:14px">
+        <h2 style="margin:0 0 8px 0">Add or Edit Item</h2>
+        <form id="item-form" class="form">
+          <input type="hidden" id="item-id" />
+          <div class="row">
+            <label class="field">
+              <span>Title</span>
+              <input id="title" required placeholder="e.g., Deep Work" />
+              <span class="error" id="e-title"></span>
+            </label>
+            <label class="field">
+              <span>Author</span>
+              <input id="author" placeholder="e.g., Cal Newport" />
+              <span class="error" id="e-author"></span>
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Notes / Quote / Summary</span>
+            <textarea id="notes" placeholder="Key ideas, thoughts, quotes..."></textarea>
+            <span class="error" id="e-notes"></span>
+          </label>
+
+          <div class="row">
+            <label class="field">
+              <span>Tags (comma separated)</span>
+              <input id="tags" placeholder="productivity, focus, non-fiction" />
+              <span class="help">Press comma to add multiple tags.</span>
+              <span class="error" id="e-tags"></span>
+            </label>
+            <label class="field">
+              <span>Status</span>
+              <select id="status">
+                <option value="to-read">To Read</option>
+                <option value="reading">Reading</option>
+                <option value="read">Read</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="row">
+            <label class="field">
+              <span>Rating (optional)</span>
+              <select id="rating">
+                <option value="">None</option>
+                <option value="1">★☆☆☆☆</option>
+                <option value="2">★★☆☆☆</option>
+                <option value="3">★★★☆☆</option>
+                <option value="4">★★★★☆</option>
+                <option value="5">★★★★★</option>
+              </select>
+            </label>
+            <div></div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="btn primary">Save</button>
+            <a href="./index.html" class="btn">Cancel</a>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">© <span id="year"></span> Book & Notes Vault</div>
+    </footer>
+
+    <script src="./js/storage.js"></script>
+    <script src="./js/validation.js"></script>
+    <script src="./js/dom.js"></script>
+    <script src="./js/main.js"></script>
+  </body>
+</html>

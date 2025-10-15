@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book & Notes Vault • Home</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body data-page="home">
+    <header class="site-header">
+      <div class="container header-inner">
+        <h1 class="brand">Book & Notes Vault</h1>
+        <nav class="nav">
+          <a href="./index.html" class="active">Catalog</a>
+          <a href="./form.html">Add/Edit</a>
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./about.html">About</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="search-panel card">
+        <div class="fields">
+          <label class="field">
+            <span>Search</span>
+            <input id="search-input" type="search" placeholder="Title, author, notes..." />
+          </label>
+          <label class="field">
+            <span>Tags</span>
+            <input id="tag-filter" type="text" placeholder="tag1, tag2" />
+          </label>
+          <label class="field">
+            <span>Status</span>
+            <select id="status-filter">
+              <option value="">Any</option>
+              <option value="to-read">To Read</option>
+              <option value="reading">Reading</option>
+              <option value="read">Read</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section>
+        <div id="results" class="grid"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">© <span id="year"></span> Book & Notes Vault</div>
+    </footer>
+
+    <script src="./js/storage.js"></script>
+    <script src="./js/validation.js"></script>
+    <script src="./js/dom.js"></script>
+    <script src="./js/main.js"></script>
+  </body>
+  </html>
