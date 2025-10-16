@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book & Notes Vault • Settings</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body data-page="settings">
+    <header class="site-header">
+      <div class="container header-inner">
+        <h1 class="brand">Book & Notes Vault</h1>
+        <nav class="nav">
+          <a href="./index.html">Books</a>
+          <a href="./form.html">Add/Edit</a>
+          <a href="./dashboard.html">Dashboard</a>
+          <a href="./about.html">About</a>
+          <a class="active" href="./settings.html">Settings</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card" style="margin-top:14px">
+        <h2 style="margin:0 0 8px 0">Settings</h2>
+        <p class="help">Manage your reading goals and application data.</p>
+      </section>
+
+      <section class="card" style="margin-top:14px">
+        <h3 style="margin:0 0 8px 0">Reading Goal</h3>
+        <p class="help">Set your annual reading goal to track your progress throughout the year.</p>
+        <div class="row">
+          <label class="field">
+            <span>Year</span>
+            <input id="goal-year" type="number" min="2000" max="9999" />
+          </label>
+          <label class="field">
+            <span>Books to read</span>
+            <input id="goal-count" type="number" min="0" placeholder="e.g., 24" />
+          </label>
+        </div>
+        <div class="actions">
+          <button id="btn-save-goal" class="btn primary" type="button">Save Goal</button>
+          <span id="goal-status" class="help"></span>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:14px">
+        <h3 style="margin:0 0 8px 0">Data Management</h3>
+        <p class="help">Export your library data for backup or import existing data from a previous backup.</p>
+        <div class="actions" style="flex-wrap:wrap">
+          <button id="btn-export" class="btn" type="button">Export Data</button>
+          <label class="btn" for="file-import" style="cursor:pointer">Import Data</label>
+          <input id="file-import" type="file" accept="application/json" style="display:none" />
+          <button id="btn-run-tests" class="btn" type="button">Run Tests</button>
+        </div>
+        <div class="actions" style="margin-top:12px">
+          <button id="btn-clear" class="btn danger" type="button">Clear All Data</button>
+        </div>
+        <div id="import-status" class="help"></div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">© <span id="year"></span> Book & Notes Vault</div>
+    </footer>
+
+    <script src="./js/storage.js"></script>
+    <script src="./js/validation.js"></script>
+    <script src="./js/dom.js"></script>
+    <script src="./js/main.js"></script>
+  </body>
+</html>

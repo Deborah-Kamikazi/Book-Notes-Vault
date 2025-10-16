@@ -36,6 +36,22 @@
     const url = new URL(window.location.href);
     return url.searchParams.get(name);
   }
+
+  // SETTINGS HELPERS
+  const GOAL_KEY = 'bnv_reading_goal_v1';
+  function loadGoal() {
+    try { return JSON.parse(localStorage.getItem(GOAL_KEY) || 'null'); } catch { return null; }
+  }
+  function saveGoal(goal) {
+    try { localStorage.setItem(GOAL_KEY, JSON.stringify(goal)); } catch {}
+  }
+  function download(filename, text) {
+    const blob = new Blob([text], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+
   function debounce(fn, ms = 200) {
     let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
   }
@@ -51,6 +67,80 @@
     } else {
       for (const it of list) { const d = document.createElement('div'); d.textContent = it.title || 'Untitled'; root.appendChild(d); }
     }
+  }
+
+  function initSettings() {
+    // Prefill goal
+    const now = new Date();
+    const yr = String(now.getFullYear());
+    const yearEl = document.getElementById('goal-year');
+    const countEl = document.getElementById('goal-count');
+    const statusEl = document.getElementById('goal-status');
+    if (yearEl && !yearEl.value) yearEl.value = yr;
+    const goal = loadGoal();
+    if (goal && yearEl && countEl) {
+      yearEl.value = String(goal.year || yr);
+      countEl.value = String(goal.count || '');
+    }
+    document.getElementById('btn-save-goal')?.addEventListener('click', () => {
+      const y = Number(yearEl?.value || yr);
+      const c = Number(countEl?.value || 0);
+      saveGoal({ year: y, count: c });
+      if (statusEl) statusEl.textContent = `Saved: ${c} books in ${y}`;
+    });
+
+    // Export
+    document.getElementById('btn-export')?.addEventListener('click', () => {
+      const data = {
+        schema: 1,
+        exportedAt: new Date().toISOString(),
+        items: AppStorage?.getAll?.() || [],
+        settings: { goal: loadGoal() }
+      };
+      download('book-notes-vault-backup.json', JSON.stringify(data, null, 2));
+    });
+
+    // Import
+    const importInput = document.getElementById('file-import');
+    const importStatus = document.getElementById('import-status');
+    importInput?.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0]; if (!file) return;
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed.items)) AppStorage?.saveAll?.(parsed.items);
+        if (parsed.settings?.goal) saveGoal(parsed.settings.goal);
+        if (importStatus) importStatus.textContent = 'Import complete. Reloading...';
+        setTimeout(() => window.location.reload(), 400);
+      } catch (err) {
+        if (importStatus) importStatus.textContent = 'Import failed: invalid JSON';
+      } finally {
+        importInput.value = '';
+      }
+    });
+
+    // Run tests (simple validation pass)
+    document.getElementById('btn-run-tests')?.addEventListener('click', () => {
+      const items = AppStorage?.getAll?.() || [];
+      const bad = [];
+      for (const it of items) {
+        const errs = (window.AppValidation?.validateItem?.(it)) || {};
+        if (Object.keys(errs).length) bad.push({ id: it.id, title: it.title, errs });
+      }
+      if (bad.length) alert(`Found ${bad.length} item(s) with issues. Check console.`);
+      else alert('All items passed basic validation.');
+      console.log('Validation results:', bad);
+    });
+
+    // Clear all data
+    document.getElementById('btn-clear')?.addEventListener('click', () => {
+      confirmDelete('This will delete ALL books and settings. Continue?', () => {
+        // Clear items by saving empty list and wipe goal
+        AppStorage?.saveAll?.([]);
+        saveGoal(null);
+        window.location.reload();
+      });
+    });
   }
 
   function applySearch() {
@@ -77,7 +167,6 @@
         if (!btn) return;
         const id = btn.getAttribute('data-id');
         if (!id) return;
-        // Find a title if available
         const card = btn.closest('.book-card');
         const titleEl = card?.querySelector('h3, .book-title');
         const title = titleEl?.textContent?.trim() || 'this item';
@@ -92,10 +181,16 @@
     $('#item-id').value = it.id;
     $('#title').value = it.title || '';
     $('#author').value = it.author || '';
+    $('#pages') && ($('#pages').value = it.pages != null ? String(it.pages) : '');
+    $('#tag') && ($('#tag').value = it.tag || '');
     $('#notes').value = it.notes || '';
-    $('#tags').value = (it.tags || []).join(', ');
     $('#status').value = it.status || 'to-read';
     $('#rating').value = it.rating || '';
+    if ($('#dateAdded')) {
+      // Expecting YYYY-MM-DD; if created from timestamp, convert
+      const da = it.dateAdded || '';
+      $('#dateAdded').value = da;
+    }
   }
 
   function initForm() {
@@ -112,13 +207,15 @@
         id: $('#item-id').value || undefined,
         title: $('#title').value,
         author: $('#author').value,
+        pages: $('#pages')?.value ? Number($('#pages').value) : undefined,
+        tag: $('#tag')?.value || undefined,
         notes: $('#notes').value,
-        tags: (AppStorage?.parseTagInput?.($('#tags').value)) || [],
         status: $('#status').value || 'to-read',
         rating: $('#rating').value ? Number($('#rating').value) : undefined,
+        dateAdded: $('#dateAdded')?.value || undefined,
       };
       const errs = (AppValidation?.validateItem?.(item)) || {};
-      AppValidation?.showErrors?.({ title: errs.title || '', author: errs.author || '', notes: errs.notes || '', tags: errs.tags || '' });
+      AppValidation?.showErrors?.({ title: errs.title || '', author: errs.author || '', notes: errs.notes || '', pages: errs.pages || '', tag: errs.tag || '', dateAdded: errs.dateAdded || '' });
       if (Object.keys(errs).length) return;
       AppStorage?.addOrUpdate?.(item);
       window.location.href = './index.html';
@@ -200,6 +297,7 @@
     else if (page === 'form') initForm();
     else if (page === 'dashboard') initDashboard();
     else if (page === 'about') initAbout();
+    else if (page === 'settings') initSettings();
   }
 
   // CONFIRM MODAL

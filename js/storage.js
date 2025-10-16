@@ -5,9 +5,12 @@
 //   title: string,
 //   author?: string,
 //   notes?: string,
+//   pages?: number,
+//   tag?: string,
 //   tags: string[],
 //   status: 'to-read'|'reading'|'read',
 //   rating?: number,
+//   dateAdded?: string, // YYYY-MM-DD
 //   createdAt: number,
 //   updatedAt: number
 // }
@@ -56,11 +59,25 @@
     if (!item.id) {
       item.id = uid();
       item.createdAt = nowTs;
+      if (!item.dateAdded) {
+        try {
+          const d = new Date();
+          const mm = String(d.getMonth()+1).padStart(2,'0');
+          const dd = String(d.getDate()).padStart(2,'0');
+          item.dateAdded = `${d.getFullYear()}-${mm}-${dd}`;
+        } catch {}
+      }
     }
     item.updatedAt = nowTs;
     item.tags = normalizeTags(item.tags);
+    if (item.tag != null) item.tag = String(item.tag).trim();
+    if (item.pages != null && item.pages !== '') item.pages = Number(item.pages);
     const idx = state.items.findIndex(i => i.id === item.id);
-    if (idx >= 0) state.items[idx] = item; else state.items.unshift(item);
+    if (idx >= 0) {
+      const prev = state.items[idx];
+      if (!item.dateAdded && prev.dateAdded) item.dateAdded = prev.dateAdded;
+      state.items[idx] = item;
+    } else state.items.unshift(item);
     write(state);
     return item;
   }
@@ -85,11 +102,11 @@
     return getAll().filter(it => {
       if (wantStatus && it.status !== wantStatus) return false;
       if (tagSet.size) {
-        const hasAll = [...tagSet].every(t => it.tags.includes(t));
+        const hasAll = [...tagSet].every(t => (it.tags && it.tags.includes(t)) || (it.tag && it.tag.toLowerCase() === t));
         if (!hasAll) return false;
       }
       if (!query) return true;
-      const hay = [it.title, it.author, it.notes, it.tags.join(' ')].join(' ').toLowerCase();
+      const hay = [it.title, it.author, it.notes, (it.tags||[]).join(' '), it.tag || ''].join(' ').toLowerCase();
       return hay.includes(query);
     });
   }
@@ -101,7 +118,10 @@
     const readingCnt = items.filter(i => i.status === 'reading').length;
     const toReadCnt = items.filter(i => i.status === 'to-read').length;
     const tags = {};
-    for (const it of items) for (const t of it.tags) tags[t] = (tags[t] || 0) + 1;
+    for (const it of items) {
+      if (Array.isArray(it.tags)) for (const t of it.tags) tags[t] = (tags[t] || 0) + 1;
+      if (it.tag) tags[it.tag] = (tags[it.tag] || 0) + 1;
+    }
     const tagList = Object.entries(tags).sort((a,b) => b[1]-a[1]).slice(0, 20);
     const recent = [...items].sort((a,b) => b.updatedAt - a.updatedAt).slice(0, 8);
     return { total, readCnt, readingCnt, toReadCnt, tagList, recent };
@@ -112,17 +132,17 @@
     if (items.length) return;
     const seed = [
       {
-        title: 'Deep Work', author: 'Cal Newport',
+        title: 'Deep Work', author: 'Cal Newport', pages: 304, tag: 'productivity', dateAdded: '2016-01-01',
         notes: 'Focus without distraction on cognitively demanding tasks.',
         tags: ['productivity','focus','non-fiction'], status: 'read', rating: 5
       },
       {
-        title: 'Atomic Habits', author: 'James Clear',
+        title: 'Atomic Habits', author: 'James Clear', pages: 320, tag: 'habits', dateAdded: '2018-10-16',
         notes: 'Tiny changes, remarkable results. Systems over goals.',
         tags: ['habits','self-improvement'], status: 'read', rating: 5
       },
       {
-        title: 'Clean Code', author: 'Robert C. Martin',
+        title: 'Clean Code', author: 'Robert C. Martin', pages: 464, tag: 'programming', dateAdded: '2008-08-01',
         notes: 'Principles for writing readable, maintainable code.',
         tags: ['programming','craft'], status: 'reading', rating: 4
       }

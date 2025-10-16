@@ -27,10 +27,15 @@
       h('div', { class: 'meta' }, [
         it.author ? `by ${it.author}` : null,
         it.rating ? ` • ${ratingStars(it.rating)}` : null,
-        it.status ? ` • ${it.status}` : null
+        it.status ? ` • ${it.status}` : null,
+        it.pages ? ` • ${it.pages} pages` : null,
+        it.dateAdded ? ` • added ${it.dateAdded}` : null
       ].filter(Boolean).join('')),
       it.notes ? h('div', { class: 'help' }, it.notes.slice(0, 200)) : null,
-      h('div', { class: 'tags' }, (it.tags || []).map(tagBadge)),
+      h('div', { class: 'tags' }, [
+        it.tag ? tagBadge(it.tag) : null,
+        ...(it.tags || []).map(tagBadge)
+      ].filter(Boolean)),
       h('div', { class: 'actions' }, [
         h('a', { href: './form.html?id=' + encodeURIComponent(it.id), class: 'btn primary' }, 'Edit'),
         h('button', { class: 'btn danger', 'data-action': 'delete', 'data-id': String(it.id) }, 'Delete')
