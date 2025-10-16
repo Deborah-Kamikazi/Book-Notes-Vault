@@ -112,3 +112,5 @@ Notes:
   3. `js/dom.js`
   4. `js/main.js`
 - Avoid breaking global names: `window.AppStorage`, `window.AppValidation`, `window.AppDom`, `window.AppUtils`.
+## Demo video link
+https://vimeo.com/1127977808?share=copy&fl=sv&fe=ci
