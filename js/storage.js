@@ -1,20 +1,3 @@
-// Storage module: manages items in localStorage
-// Item shape:
-// {
-//   id: string,
-//   title: string,
-//   author?: string,
-//   notes?: string,
-//   pages?: number,
-//   tag?: string,
-//   tags: string[],
-//   status: 'to-read'|'reading'|'read',
-//   rating?: number,
-//   dateAdded?: string, // YYYY-MM-DD
-//   createdAt: number,
-//   updatedAt: number
-// }
-
 ;(() => {
   const KEY = 'bnv_items_v1';
   const SCHEMA = 1;

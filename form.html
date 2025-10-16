@@ -29,50 +29,51 @@
             <label class="field">
               <span>Title</span>
               <input id="title" required placeholder="e.g., Deep Work" />
-              <span class="error" id="e-title"></span>
+              <span class="error" id="e-title" role="alert" aria-live="assertive"></span>
             </label>
             <label class="field">
               <span>Author</span>
-              <input id="author" placeholder="e.g., Cal Newport" />
-              <span class="error" id="e-author"></span>
+              <input id="author" required placeholder="e.g., Cal Newport" />
+              <span class="error" id="e-author" role="alert" aria-live="assertive"></span>
             </label>
           </div>
 
           <div class="row">
             <label class="field">
               <span>Pages</span>
-              <input id="pages" type="number" min="1" placeholder="e.g., 320" />
-              <span class="error" id="e-pages"></span>
+              <input id="pages" type="number" min="1" required placeholder="e.g., 320" />
+              <span class="error" id="e-pages" role="alert" aria-live="assertive"></span>
             </label>
             <label class="field">
               <span>Tag</span>
-              <input id="tag" placeholder="e.g., productivity" />
-              <span class="error" id="e-tag"></span>
+              <input id="tag" required placeholder="e.g., productivity" />
+              <span class="error" id="e-tag" role="alert" aria-live="assertive"></span>
             </label>
           </div>
 
           <label class="field">
             <span>Notes / Quote / Summary</span>
-            <textarea id="notes" placeholder="Key ideas, thoughts, quotes..."></textarea>
-            <span class="error" id="e-notes"></span>
+            <textarea id="notes" required placeholder="Key ideas, thoughts, quotes..."></textarea>
+            <span class="error" id="e-notes" role="alert" aria-live="assertive"></span>
           </label>
 
           <div class="row">
             <div></div>
             <label class="field">
               <span>Status</span>
-              <select id="status">
+              <select id="status" required>
                 <option value="to-read">To Read</option>
                 <option value="reading">Reading</option>
                 <option value="read">Read</option>
               </select>
+              <span class="error" id="e-status" role="alert" aria-live="assertive"></span>
             </label>
           </div>
 
           <div class="row">
             <label class="field">
               <span>Rating (optional)</span>
-              <select id="rating">
+              <select id="rating" required>
                 <option value="">None</option>
                 <option value="1">★☆☆☆☆</option>
                 <option value="2">★★☆☆☆</option>
@@ -80,11 +81,13 @@
                 <option value="4">★★★★☆</option>
                 <option value="5">★★★★★</option>
               </select>
+              <span class="error" id="e-rating" role="alert" aria-live="assertive"></span>
             </label>
             <label class="field">
               <span>Date Added</span>
-              <input id="dateAdded" type="date" />
+              <input id="dateAdded" type="date" required />
               <span class="help">Defaults to today when creating a new book.</span>
+              <span class="error" id="e-dateAdded" role="alert" aria-live="assertive"></span>
             </label>
           </div>
 

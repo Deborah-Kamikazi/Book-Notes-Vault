@@ -201,9 +201,11 @@
       if (existing) fillForm(existing);
     }
     const form = $('#item-form');
-    form?.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const item = {
+    // Validation UX: only show errors after the first submit attempt
+    const saveBtn = form?.querySelector('button[type="submit"]');
+    let showErrorsNow = false;
+    function readItemFromForm() {
+      return {
         id: $('#item-id').value || undefined,
         title: $('#title').value,
         author: $('#author').value,
@@ -214,9 +216,49 @@
         rating: $('#rating').value ? Number($('#rating').value) : undefined,
         dateAdded: $('#dateAdded')?.value || undefined,
       };
+    }
+    function requiredFilled() {
+      if (!form) return false;
+      const requiredEls = Array.from(form.querySelectorAll('[required]'));
+      return requiredEls.every(el => String(el.value || '').trim().length > 0);
+    }
+    function updateFormState() {
+      if (!form) return;
+      const item = readItemFromForm();
       const errs = (AppValidation?.validateItem?.(item)) || {};
-      AppValidation?.showErrors?.({ title: errs.title || '', author: errs.author || '', notes: errs.notes || '', pages: errs.pages || '', tag: errs.tag || '', dateAdded: errs.dateAdded || '' });
-      if (Object.keys(errs).length) return;
+      if (showErrorsNow) {
+        AppValidation?.showErrors?.({
+          title: errs.title || '',
+          author: errs.author || '',
+          notes: errs.notes || '',
+          pages: errs.pages || '',
+          tag: errs.tag || '',
+          status: errs.status || '',
+          rating: errs.rating || '',
+          dateAdded: errs.dateAdded || ''
+        });
+      }
+    }
+    // No live validation display; errors are shown only on submit
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const item = readItemFromForm();
+      showErrorsNow = true;
+      const errs = (AppValidation?.validateItem?.(item)) || {};
+      AppValidation?.showErrors?.({ title: errs.title || '', author: errs.author || '', notes: errs.notes || '', pages: errs.pages || '', tag: errs.tag || '', status: errs.status || '', rating: errs.rating || '', dateAdded: errs.dateAdded || '' });
+      if (Object.keys(errs).length) {
+        // Focus first invalid field to trigger screen reader announcement
+        const order = ['title','author','pages','tag','notes','status','rating','dateAdded'];
+        const firstKey = order.find(k => errs[k]);
+        const firstEl = firstKey ? document.getElementById(firstKey) : null;
+        if (firstEl && typeof firstEl.focus === 'function') {
+          firstEl.focus({ preventScroll: false });
+          if (typeof firstEl.scrollIntoView === 'function') firstEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+        return;
+      }
+      // Additionally guard against missing required fields
+      if (!requiredFilled()) { updateFormState(); return; }
       AppStorage?.addOrUpdate?.(item);
       window.location.href = './index.html';
     });
